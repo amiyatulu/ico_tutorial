@@ -7,8 +7,7 @@ contract DappToken {
 
     uint256 public totalSupply;
 
-    // Its there in documentation, please see it.
-
+    //4. Its there in documentation, please see it.
     event Transfer(
         address indexed _from,
         address indexed _to,
@@ -23,17 +22,16 @@ contract DappToken {
         totalSupply = _initialSupply;
     }
 
-    // Transfer
+    // 1. Transfer, please also look at the documentation
     function transfer(address _to, uint256 _value) public returns (bool success) {
-    // Exception if account doesn't have enough
+    // 2. Exception if account doesn't have enough
     require(balanceOf[msg.sender] >= _value, "Don't have enough money");
-    // Transfer the balance
+    //3. Transfer the balance
     balanceOf[msg.sender] -= _value;
     balanceOf[_to] += _value;
-    // Transfer Event
+    //5. Transfer Event
     emit Transfer(msg.sender, _to, _value);
-
-    // Return a boolean
+    //6. Return a boolean
     return true;
     }
 }
