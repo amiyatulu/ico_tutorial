@@ -7,7 +7,7 @@ contract DappToken {
 
     uint256 public totalSupply;
 
-    //4. Its there in documentation, please see it.
+
     event Transfer(
         address indexed _from,
         address indexed _to,
@@ -15,23 +15,45 @@ contract DappToken {
 
     );
 
+    // 2. Approval even, see the documentation
+    // I the owner, approved _spender to spend _value number of dapp tokens
+    event Approval(
+        address indexed _owner,
+        address indexed _spender,
+        uint256 _value
+    );
+
     mapping(address => uint256) public balanceOf;
+
+    // 4. allownance variable, it contains nested mapping. We have mapping within a mapping
+    mapping(address => mapping(address => uint256)) public allowance;
 
     constructor (uint256 _initialSupply) public {
         balanceOf[msg.sender] = _initialSupply;
         totalSupply = _initialSupply;
     }
 
-    // 1. Transfer, please also look at the documentation
     function transfer(address _to, uint256 _value) public returns (bool success) {
-    // 2. Exception if account doesn't have enough
+
     require(balanceOf[msg.sender] >= _value, "Don't have enough money");
-    //3. Transfer the balance
+
     balanceOf[msg.sender] -= _value;
     balanceOf[_to] += _value;
-    //5. Transfer Event
+
     emit Transfer(msg.sender, _to, _value);
-    //6. Return a boolean
+
     return true;
+    }
+
+    // 1. Approve function (Allows _spender to withdraw from your account multiple times)
+    function approve(address _spender, uint256 _value) public returns (bool success) {
+
+    // 5. Allowance
+    allowance[msg.sender][_spender] = _value;
+
+    // 3. Call the Approval event
+        emit Approval(msg.sender, _spender, _value);
+
+        return true;
     }
 }
