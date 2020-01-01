@@ -56,4 +56,27 @@ contract DappToken {
 
         return true;
     }
+    // 6. Transfer money, similar to transfer function, but its done by me (msg.sender) on behalf of _from address
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
+        
+        // 7. Check if _from account has enough balance
+        require(_value <= balanceOf[_from], "You are trying to spend more than user has");
+
+        // 8. Check if msg.sender tranfers amount of money that is allowed
+        require(_value <= allowance[_from][msg.sender], "You are trying to spend more than allowed limit");
+
+        // 10. Deduct balance _from account, and adding it to _to account
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+
+        // 11. Deduct the allowance
+        allowance[_from][msg.sender] -= _value;
+
+
+        // 9. Tranfer event
+        emit Transfer(_from, _to, _value);
+
+        return true;
+
+    }
 }
