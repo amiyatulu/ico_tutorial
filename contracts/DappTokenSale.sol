@@ -39,7 +39,11 @@ contract DappTokenSale {
 
         // 9. Require that the contract has enough tokens
         require(tokenContract.balanceOf(address(this)) >= _numberOfTokens, "contract don't have enough tokens");
-        // Require that a transfer is successful
+        
+        // 10. Require that a transfer is successful
+        // Why this functionality is required, revisit again to understand
+        require(tokenContract.transfer(msg.sender, _numberOfTokens), "check transfer");
+
 
         // 5. Keep track of tokenSold
         tokensSold += _numberOfTokens;
