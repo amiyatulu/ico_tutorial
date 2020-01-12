@@ -71,19 +71,62 @@ contract("DappTokenSale", function(accounts) {
       })
       .then(function(balance) {
         // console.log(balance.toNumber(), "balance of contract address");
-        assert.equal(balance.toNumber(), tokensAvailable - numberOfTokens, "contract balance didn't decreased by numberOfTokens send to buyToken function");
-        //8. Try to buy tokens different with the ether value, the value i.e. wei sent in the transcation is much less than numberOfTokens * tokenPrice
+        // 8. Balance of the contract
+        assert.equal(
+          balance.toNumber(),
+          tokensAvailable - numberOfTokens,
+          "contract balance didn't decreased by numberOfTokens send to buyToken function"
+        );
+        //9. Try to buy tokens different with the ether value, the value i.e. wei sent in the transcation is much less than numberOfTokens * tokenPrice
         return tokenSaleInstance.buyTokens(numberOfTokens, { from: buyer, value: 1 });
       })
       .then(assert.fail)
       .catch(function(error) {
         assert(error.message.indexOf("revert") >= 0, "msg.value must be more than numberOfTokens * tokenPrice");
-        //9. Ask to buy with numberOfTokens more than the smart contract has
+        //10. Ask to buy with numberOfTokens more than the smart contract has
         return tokenSaleInstance.buyTokens(800000, { from: buyer, value: 800000 * tokenPrice });
       })
       .then(assert.fail)
       .catch(function(error) {
         assert(error.reason == "contract don't have enough tokens", "cannot purchase more tokens than available");
+      });
+  });
+
+  it("ends token sale", function() {
+    return DappToken.deployed()
+      .then(function(instance) {
+        // 11. Grab token instance first
+        tokenInstance = instance;
+        return DappTokenSale.deployed();
+      })
+      .then(function(instance) {
+        // 12. Then grap token sale instance
+        tokenSaleInstance = instance;
+
+        // 13. Try to end sale from account other than the admin
+        return tokenSaleInstance.endSale({ from: buyer });
+      })
+      .then(assert.fail)
+      .catch(function(error) {
+        assert(error.message.indexOf("revert" >= 0, "must be admin to end sale"));
+
+        // 14. End sale as admin
+        return tokenSaleInstance.endSale({ from: admin });
+      })
+      .then(function(receipt) {
+        return tokenInstance.balanceOf(admin);
+      })
+      .then(function(balance) {
+        // 15. Balance of Admin
+        // console.log(balance.toNumber())
+        assert.equal(balance.toNumber(), 999990, "returns all unsold dapp tokens to admin");
+        // 16. Check that contract is destroyed because selfDestruct was called on endSale
+        // console.log(tokenSaleInstance.address)
+        return web3.eth.getCode(tokenSaleInstance.address);
+      })
+      .then(function(code) {
+        // console.log(code)
+        assert.equal(code, "0x", "contract is destroyed");
       });
   });
 });

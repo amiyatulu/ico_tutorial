@@ -10,7 +10,7 @@ contract DappTokenSale {
     // 10. using the SafeMath Library
     using SafeMath for uint256;
 
-    address admin;
+    address payable admin;
     DappToken public tokenContract;
     uint256 public tokenPrice;
 
@@ -54,4 +54,15 @@ contract DappTokenSale {
         emit Sell(msg.sender, _numberOfTokens);
 
     }
+
+    // 11. Ending the token sale
+    function endSale() public {
+        // 12. Require admin
+        require(msg.sender == admin, "You have to be admin");
+        // 13. Transfer remaining dapp tokens to admin
+        require(tokenContract.transfer(admin, tokenContract.balanceOf(address(this))), "Transfer the total amount to admin");
+        // 14. Destroy contract
+        selfdestruct(admin);
+    }
+
 }
